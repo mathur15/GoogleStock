@@ -16,6 +16,8 @@ nasdaq_data = nasdaq_data.iloc[:1258,1:2].values
 google_dataset = pd.read_csv('Google_Stock_Price_Train.csv')
 google_open = google_dataset.iloc[:,1:2].values
 
+google_dataset_predict = pd.read_csv('Google_Stock_Price_Test.csv')
+
 data = {'NASDAQ open':nasdaq_data.flatten(),'google_open':google_open.flatten()}
 
 training_set = pd.DataFrame(data = data)
@@ -47,7 +49,6 @@ for i in range(60,1258):
 x_train,y_train = np.array(x_train),np.array(y_train)
 #print(x_train.shape[0])
 #print(x_train.shape[1])
-#x_train = np.reshape(x_train,(x_train.shape[0],0,x_train.shape[1]))
 
 regressor = Sequential()
 
@@ -74,5 +75,8 @@ regressor.add(Dense(units = 1, activation='linear'))
 #rmsprop recommended for rnns according to keras documentation
 regressor.compile(optimizer = 'rmsprop', loss = 'mean_squared_error')
 
-regressor.fit(x_train,y_train,epochs=100,batch_size=32)
+regressor.fit(x_train,y_train,epochs=200,batch_size=32)
+
+
+
     
