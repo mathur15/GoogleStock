@@ -45,11 +45,19 @@ for i in range(60,1258):
     y_train.append(training_set_scaled[i,0])
 
 x_train,y_train = np.array(x_train),np.array(y_train)
+#print(x_train.shape[0])
+#print(x_train.shape[1])
+#x_train = np.reshape(x_train,(x_train.shape[0],0,x_train.shape[1]))
 
 regressor = Sequential()
 
 regressor.add(LSTM(units = 50,return_sequences=True,
-                   input_shape=(x_train.shape[1],1)))
+                   input_shape=(x_train.shape[1],2)))
+#for training each data point there is 60 rows and 2 columns of data
+#see x_train to understand how the data is prepared
+#input shape- think of it as the data needed for one row/datapoint
+#input_shape=(timesteps,features)
+
 regressor.add(Dropout(0.2))
 
 regressor.add(LSTM(units = 50,return_sequences=True))
@@ -61,7 +69,7 @@ regressor.add(Dropout(0.2))
 regressor.add(LSTM(units = 50,return_sequences=False))
 regressor.add(Dropout(0.2))
 
-regressor.add(Dense(units = 1))
+regressor.add(Dense(units = 1, activation='linear'))
 
 #rmsprop recommended for rnns according to keras documentation
 regressor.compile(optimizer = 'rmsprop', loss = 'mean_squared_error')
