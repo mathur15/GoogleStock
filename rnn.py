@@ -62,5 +62,8 @@ regressor.add(Dropout(0.2))
 
 regressor.add(Dense(units = 1))
 
+#rmsprop recommended for rnns according to keras documentation
+regressor.compile(optimizer = 'rmsprop', loss = 'mean_squared_error')
 
+regressor.fit(x_train,y_train,epochs=100,batch_size=32)
     
