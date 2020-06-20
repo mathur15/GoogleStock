@@ -16,8 +16,6 @@ nasdaq_data = nasdaq_data.iloc[:1258,1:2].values
 google_dataset = pd.read_csv('Google_Stock_Price_Train.csv')
 google_open = google_dataset.iloc[:,1:2].values
 
-google_dataset_predict = pd.read_csv('Google_Stock_Price_Test.csv')
-
 data = {'NASDAQ open':nasdaq_data.flatten(),'google_open':google_open.flatten()}
 
 training_set = pd.DataFrame(data = data)
@@ -75,7 +73,44 @@ regressor.add(Dense(units = 1, activation='linear'))
 #rmsprop recommended for rnns according to keras documentation
 regressor.compile(optimizer = 'rmsprop', loss = 'mean_squared_error')
 
-regressor.fit(x_train,y_train,epochs=200,batch_size=32)
+regressor.fit(x_train,y_train,epochs=100,batch_size=32)
+
+test_set = pd.read_csv('Google_Stock_Price_Test.csv')
+actual_price_2017 = test_set.iloc[:,1:2].values
+
+#get predications for the 2017 test set
+# for each prediction, we are using the 60 previous timestamps
+#this will involve concatenation of the test and training set
+
+#include NASDAQ data in training set 
+google_dataset['NASDAQ Open'] = nasdaq_data
+#include nasdaq data relevant for the test set
+all_nasdaq = pd.read_csv("NASDAQ_index.csv")
+test_set["NASDAQ open"] = all_nasdaq.iloc[1258:,1:2].values
+#combine train and test-trying out Date for verifying
+#dataset_total = pd.concat((google_dataset[['Date','Open','NASDAQ open']],
+#                           test_set[['Date','Open','NASDAQ open']]),axis=0
+#                          ,ignore_index=True)
+dataset_total = pd.concat((google_dataset[['Open','NASDAQ open']],
+                           test_set[['Open','NASDAQ open']]),axis=0
+                          ,ignore_index=True)
+inputs = dataset_total[len(dataset_total)-len(test_set)-60:].values
+inputs = scalar.transform(inputs)
+
+x_test = []
+
+#for each timestamp to predict, append the 60 previous timestamps
+for i in range(60,80):
+    x_test.append(inputs[i-60:i,0:2])
+
+x_test =np.array(x_test)
+predicted_stock_price = regressor.predict(x_test)
+predicted_stock_price = scalar.inverse_transform(predicted_stock_price)
+
+
+
+
+
 
 
 
