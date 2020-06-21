@@ -14,14 +14,6 @@ def standardize_column(column_data):
     column_data = column_data.reshape(-1,1)
     column_data = sc.fit_transform(column_data)
     return column_data
-# def separate_data(column_data,index):
-#     column_data = column_data.tolist()
-    
-#     isolated_data = []
-#     for i in range(len(column_data)):
-#         isolated_data.append(column_data[i][index])
-#     isolated_data = np.array(isolated_data)
-#     return isolated_data
 
 #import nasdaq data
 nasdaq_data = pd.read_csv('NASDAQ_index.csv')
@@ -74,7 +66,7 @@ regressor.add(LSTM(units = 50,return_sequences=False))
 regressor.add(Dense(units = 1, activation='linear'))
 #rmsprop recommended for rnns according to keras documentation
 regressor.compile(optimizer = 'rmsprop', loss = 'mean_squared_error')
-regressor.fit(x_train,y_train,epochs=100,batch_size=32)
+regressor.fit(x_train,y_train,epochs=200,batch_size=16)
 
 test_set = pd.read_csv('Google_Stock_Price_Test.csv')
 actual_price_2017 = test_set.iloc[:,1:2].values
@@ -89,14 +81,12 @@ google_dataset['NASDAQ Open'] = nasdaq_data
 all_nasdaq = pd.read_csv("NASDAQ_index.csv")
 test_set["NASDAQ Open"] = all_nasdaq.iloc[1258:,1:2].values
 #combine train and test-trying out Date for verifying
-#dataset_total = pd.concat((google_dataset[['Date','Open','NASDAQ open']],
-#                           test_set[['Date','Open','NASDAQ open']]),axis=0
-#                          ,ignore_index=True)
 dataset_total = pd.concat((google_dataset[['Open','NASDAQ Open']],
                            test_set[['Open','NASDAQ Open']]),axis=0,
                           ignore_index=True)
 inputs = dataset_total[len(dataset_total)-len(test_set)-60:].values
-inputs = scalar.transform(inputs)
+scalar = StandardScaler()
+inputs = scalar.fit_transform(inputs)
 
 x_test = []
 #for each timestamp to predict, append the 60 previous timestamps
@@ -111,27 +101,21 @@ predicted_stock_price = predicted_stock_price.tolist()
 for i in range(20):
     predicted_stock_price[i].append(0)
 predicted_stock_price = np.array(predicted_stock_price)
-#predicted_stock_price = scalar.inverse_transform(predicted_stock_price)
+predicted_stock_price = scalar.inverse_transform(predicted_stock_price)
 predicted_stock_price = predicted_stock_price.tolist()
 for i in range(20):
     predicted_stock_price[i] = predicted_stock_price[i][0:1]
 predicted_stock_price = np.array(predicted_stock_price)
 
-actual_price_2017 = actual_price_2017.tolist()
-for i in range(20):
-    #print(actual_price_2017[i])
-    actual_price_2017[i].append(0)
-actual_price_2017 = np.array(actual_price_2017)
-actual_price_2017 = scalar.fit_transform(actual_price_2017)
-actual_price_2017 = actual_price_2017.tolist()
-for i in range(20):
-    actual_price_2017[i] = actual_price_2017[i][0:1]
-actual_price_2017 = np.array(actual_price_2017)
 
-
-plt.plot(actual_price_2017)
+hfm, = plt.plot(predicted_stock_price, 'r', label='predicted_stock_price')
+hfm2 = plt.plot(actual_price_2017,'b', label = 'actual_stock_price')
+ 
+plt.legend(handles=[hfm,hfm2])
 plt.title("Actual vs predicted")
-plt.plot(predicted_stock_price)
+plt.title("Actual vs Predicted Stock price(Jan 2017)")
+plt.ylabel("Price(USD)")
+plt.xlabel("Date")
 
 
 
