@@ -1,12 +1,26 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import StandardScaler
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.layers import LSTM
 from keras.layers import Dropout
 #Note: All structures should be numpy arrays for rnn
+
+def standardize_column(column_data):
+    column_data = column_data.reshape(-1,1)
+    sc = StandardScaler()
+    column_data = sc.fit_transform(column_data)
+    return column_data
+def separate_data(column_data,index):
+    column_data = column_data.tolist()
+    
+    isolated_data = []
+    for i in range(len(column_data)):
+        isolated_data.append(column_data[i][index])
+    isolated_data = np.array(isolated_data)
+    return isolated_data
 
 #import nasdaq data
 nasdaq_data = pd.read_csv('NASDAQ_index.csv')
@@ -23,12 +37,14 @@ training_set = training_set[cols].astype(str)
 for i in cols:
     for j in range(0,len(training_set)):
         training_set[i][j] = training_set[i][j].replace(",","")
+        
 training_set = training_set.astype(float)
 training_set = training_set.values
-
-#instead of standardising, normalize for rnn
-scalar = MinMaxScaler()
-training_set_scaled = scalar.fit_transform(training_set)
+#separate out the columns and standardize
+training_set_first_column = separate_data(training_set,0)
+training_set_first_column = standardize_column(training_set_first_column)
+training_set_second_column = separate_data(training_set,1)
+training_set_second_column = standardize_column(training_set_second_column)
 
 #trends based on 60 previous timestamps and 1 output(time t+1)
 #for each observation to predict 60 preious financial days will be used
@@ -50,13 +66,13 @@ regressor.add(LSTM(units = 50,return_sequences=True,
 #see x_train to understand how the data is prepared
 #input shape- think of it as the data needed for one row/datapoint
 #input_shape=(timesteps,features)
-regressor.add(Dropout(0.2))
+#regressor.add(Dropout(0.2))
 regressor.add(LSTM(units = 50,return_sequences=True))
-regressor.add(Dropout(0.2))
+#regressor.add(Dropout(0.2))
 regressor.add(LSTM(units = 50,return_sequences=True))
-regressor.add(Dropout(0.2))
+#regressor.add(Dropout(0.2))
 regressor.add(LSTM(units = 50,return_sequences=False))
-regressor.add(Dropout(0.2))
+#regressor.add(Dropout(0.2))
 regressor.add(Dense(units = 1, activation='linear'))
 #rmsprop recommended for rnns according to keras documentation
 regressor.compile(optimizer = 'rmsprop', loss = 'mean_squared_error')
@@ -108,11 +124,28 @@ for i in range(20):
     #print(actual_price_2017[i])
     actual_price_2017[i].append(0)
 actual_price_2017 = np.array(actual_price_2017)
-#actual_price_2017 = scalar.fit_transform(actual_price_2017)
+actual_price_2017 = scalar.fit_transform(actual_price_2017)
 actual_price_2017 = actual_price_2017.tolist()
 for i in range(20):
     actual_price_2017[i] = actual_price_2017[i][0:1]
 actual_price_2017 = np.array(actual_price_2017)
+
+def standardize_column(data):
+    data = data.reshape(-1,1)
+    sc = StandardScaler()
+    data = sc.fit_transform(data)
+    return data
+def separate_data(data,index):
+    isolated_data = []
+    for i in range(len(data)):
+        isolated_data.append(data[i][index])
+    isolated_data = np.array(isolated_data)
+    return isolated_data
+        
+
+plt.plot(actual_price_2017)
+plt.title("Actual vs predicted")
+plt.plot(predicted_stock_price)
 
 
 
