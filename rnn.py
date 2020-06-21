@@ -97,7 +97,7 @@ predicted_stock_price = predicted_stock_price.tolist()
 for i in range(20):
     predicted_stock_price[i].append(0)
 predicted_stock_price = np.array(predicted_stock_price)
-predicted_stock_price = scalar.inverse_transform(predicted_stock_price)
+#predicted_stock_price = scalar.inverse_transform(predicted_stock_price)
 predicted_stock_price = predicted_stock_price.tolist()
 for i in range(20):
     predicted_stock_price[i] = predicted_stock_price[i][0:1]
@@ -108,7 +108,7 @@ for i in range(20):
     #print(actual_price_2017[i])
     actual_price_2017[i].append(0)
 actual_price_2017 = np.array(actual_price_2017)
-actual_price_2017 = scalar.fit_transform(actual_price_2017)
+#actual_price_2017 = scalar.fit_transform(actual_price_2017)
 actual_price_2017 = actual_price_2017.tolist()
 for i in range(20):
     actual_price_2017[i] = actual_price_2017[i][0:1]
