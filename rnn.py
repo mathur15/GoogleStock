@@ -8,19 +8,20 @@ from keras.layers import LSTM
 from keras.layers import Dropout
 #Note: All structures should be numpy arrays for rnn
 
+sc = StandardScaler()
 def standardize_column(column_data):
-    column_data = column_data.reshape(-1,1)
     sc = StandardScaler()
+    column_data = column_data.reshape(-1,1)
     column_data = sc.fit_transform(column_data)
     return column_data
-def separate_data(column_data,index):
-    column_data = column_data.tolist()
+# def separate_data(column_data,index):
+#     column_data = column_data.tolist()
     
-    isolated_data = []
-    for i in range(len(column_data)):
-        isolated_data.append(column_data[i][index])
-    isolated_data = np.array(isolated_data)
-    return isolated_data
+#     isolated_data = []
+#     for i in range(len(column_data)):
+#         isolated_data.append(column_data[i][index])
+#     isolated_data = np.array(isolated_data)
+#     return isolated_data
 
 #import nasdaq data
 nasdaq_data = pd.read_csv('NASDAQ_index.csv')
@@ -29,22 +30,21 @@ nasdaq_data = nasdaq_data.iloc[:1258,1:2].values
 google_dataset = pd.read_csv('Google_Stock_Price_Train.csv')
 google_open = google_dataset.iloc[:,1:2].values
 
-data = {'NASDAQ open':nasdaq_data.flatten(),'google_open':google_open.flatten()}
+#separate out the columns and standardize
+training_set_first_column = standardize_column(nasdaq_data)
+training_set_second_column = standardize_column(google_open)
+
+data = {'NASDAQ open':training_set_first_column.flatten(),
+        'google_open':training_set_second_column.flatten()}
 training_set = pd.DataFrame(data = data)
 
 cols = list(training_set)[0:3]
 training_set = training_set[cols].astype(str)
 for i in cols:
     for j in range(0,len(training_set)):
-        training_set[i][j] = training_set[i][j].replace(",","")
-        
+       training_set[i][j] = training_set[i][j].replace(",","")
 training_set = training_set.astype(float)
-training_set = training_set.values
-#separate out the columns and standardize
-training_set_first_column = separate_data(training_set,0)
-training_set_first_column = standardize_column(training_set_first_column)
-training_set_second_column = separate_data(training_set,1)
-training_set_second_column = standardize_column(training_set_second_column)
+training_set = training_set.values        
 
 #trends based on 60 previous timestamps and 1 output(time t+1)
 #for each observation to predict 60 preious financial days will be used
@@ -53,11 +53,9 @@ training_set_second_column = standardize_column(training_set_second_column)
 x_train = []
 y_train = []
 for i in range(60,1258):
-    x_train.append(training_set_scaled[i-60:i,0:2])
-    y_train.append(training_set_scaled[i,0])
+    x_train.append(training_set[i-60:i,0:2])
+    y_train.append(training_set[i,0])
 x_train,y_train = np.array(x_train),np.array(y_train)
-#print(x_train.shape[0])
-#print(x_train.shape[1])
 
 regressor = Sequential()
 regressor.add(LSTM(units = 50,return_sequences=True,
@@ -130,18 +128,6 @@ for i in range(20):
     actual_price_2017[i] = actual_price_2017[i][0:1]
 actual_price_2017 = np.array(actual_price_2017)
 
-def standardize_column(data):
-    data = data.reshape(-1,1)
-    sc = StandardScaler()
-    data = sc.fit_transform(data)
-    return data
-def separate_data(data,index):
-    isolated_data = []
-    for i in range(len(data)):
-        isolated_data.append(data[i][index])
-    isolated_data = np.array(isolated_data)
-    return isolated_data
-        
 
 plt.plot(actual_price_2017)
 plt.title("Actual vs predicted")
