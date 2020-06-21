@@ -58,15 +58,16 @@ regressor.add(LSTM(units = 50,return_sequences=True,
 #input_shape=(timesteps,features)
 #regressor.add(Dropout(0.2))
 regressor.add(LSTM(units = 50,return_sequences=True))
-#regressor.add(Dropout(0.2))
+regressor.add(Dropout(0.2))
 regressor.add(LSTM(units = 50,return_sequences=True))
+regressor.add(LSTM(units = 50, return_sequences = True))
 #regressor.add(Dropout(0.2))
 regressor.add(LSTM(units = 50,return_sequences=False))
 #regressor.add(Dropout(0.2))
 regressor.add(Dense(units = 1, activation='linear'))
 #rmsprop recommended for rnns according to keras documentation
 regressor.compile(optimizer = 'rmsprop', loss = 'mean_squared_error')
-regressor.fit(x_train,y_train,epochs=200,batch_size=16)
+regressor.fit(x_train,y_train,epochs=400,batch_size=32)
 
 test_set = pd.read_csv('Google_Stock_Price_Test.csv')
 actual_price_2017 = test_set.iloc[:,1:2].values
@@ -108,14 +109,16 @@ for i in range(20):
 predicted_stock_price = np.array(predicted_stock_price)
 
 
-hfm, = plt.plot(predicted_stock_price, 'r', label='predicted_stock_price')
-hfm2 = plt.plot(actual_price_2017,'b', label = 'actual_stock_price')
+hfm, = plt.plot(predicted_stock_price, 'b', label='predicted_stock_price')
+hfm2 = plt.plot(actual_price_2017,'r', label = 'actual_stock_price')
  
 plt.legend(handles=[hfm,hfm2])
 plt.title("Actual vs predicted")
 plt.title("Actual vs Predicted Stock price(Jan 2017)")
 plt.ylabel("Price(USD)")
-plt.xlabel("Date")
+plt.xlabel("Time")
+plt.savefig("Comparison.png")
+plt.show()
 
 
 
