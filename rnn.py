@@ -44,25 +44,25 @@ training_set = training_set.values
 #each row in x_train correspond to the 60 previous timestamps for a given day
 x_train = []
 y_train = []
-for i in range(60,1258):
-    x_train.append(training_set[i-60:i,0:2])
+for i in range(80,1258):
+    x_train.append(training_set[i-80:i,0:2])
     y_train.append(training_set[i,0])
 x_train,y_train = np.array(x_train),np.array(y_train)
 
 regressor = Sequential()
-regressor.add(LSTM(units = 75,return_sequences=True,
+regressor.add(LSTM(units = 125,return_sequences=True,
                    input_shape=(x_train.shape[1],2)))
 #for training each data point there is 60 rows and 2 columns of data
 #see x_train to understand how the data is prepared
 #input shape- think of it as the data needed for one row/datapoint
 #input_shape=(timesteps,features)
 #regressor.add(Dropout(0.2))
-regressor.add(LSTM(units = 75,return_sequences=True))
-regressor.add(LSTM(units = 75,return_sequences=True))
-regressor.add(LSTM(units = 75, return_sequences = True))
-regressor.add(LSTM(units = 75, return_sequences = True))
+regressor.add(LSTM(units = 125,return_sequences=True))
+regressor.add(LSTM(units = 125,return_sequences=True))
+regressor.add(LSTM(units = 125, return_sequences = True))
+regressor.add(LSTM(units = 125, return_sequences = True))
 #regressor.add(Dropout(0.2))
-regressor.add(LSTM(units = 75,return_sequences=False))
+regressor.add(LSTM(units = 125,return_sequences=False))
 #regressor.add(Dropout(0.2))
 regressor.add(Dense(units = 1, activation='linear'))
 #rmsprop recommended for rnns according to keras documentation
