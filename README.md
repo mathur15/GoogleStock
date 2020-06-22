@@ -1,5 +1,5 @@
 # GoogleStock
-Build a Recurrent Neural Network to analyze the Google Stock (NASDAQ:GOOGL).
+Build a Recurrent Neural Network to analyze the Google Stock (NASDAQ:GOOGL). The goal is to predict the google stock prices in the first financial month of 2017 using a model which will be trained on data from the past 5 years. 
 > >-Training set contains information from 2012 to 2016.\
 > >-Test Set contains information from the first few days from 2017.
 ### Data Preprocessing
