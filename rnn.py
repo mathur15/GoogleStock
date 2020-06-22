@@ -50,24 +50,24 @@ for i in range(60,1258):
 x_train,y_train = np.array(x_train),np.array(y_train)
 
 regressor = Sequential()
-regressor.add(LSTM(units = 50,return_sequences=True,
+regressor.add(LSTM(units = 75,return_sequences=True,
                    input_shape=(x_train.shape[1],2)))
 #for training each data point there is 60 rows and 2 columns of data
 #see x_train to understand how the data is prepared
 #input shape- think of it as the data needed for one row/datapoint
 #input_shape=(timesteps,features)
 #regressor.add(Dropout(0.2))
-regressor.add(LSTM(units = 50,return_sequences=True))
-regressor.add(Dropout(0.2))
-regressor.add(LSTM(units = 50,return_sequences=True))
-regressor.add(LSTM(units = 50, return_sequences = True))
+regressor.add(LSTM(units = 75,return_sequences=True))
+regressor.add(LSTM(units = 75,return_sequences=True))
+regressor.add(LSTM(units = 75, return_sequences = True))
+regressor.add(LSTM(units = 75, return_sequences = True))
 #regressor.add(Dropout(0.2))
-regressor.add(LSTM(units = 50,return_sequences=False))
+regressor.add(LSTM(units = 75,return_sequences=False))
 #regressor.add(Dropout(0.2))
 regressor.add(Dense(units = 1, activation='linear'))
 #rmsprop recommended for rnns according to keras documentation
 regressor.compile(optimizer = 'rmsprop', loss = 'mean_squared_error')
-regressor.fit(x_train,y_train,epochs=400,batch_size=32)
+regressor.fit(x_train,y_train,epochs=400,batch_size=16)
 
 test_set = pd.read_csv('Google_Stock_Price_Test.csv')
 actual_price_2017 = test_set.iloc[:,1:2].values
